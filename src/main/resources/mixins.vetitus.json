@@ -1,0 +1,8 @@
+{
+	"required": true,
+	"compatibilityLevel": "JAVA_8",
+	"package": "me.robeart.vetitus.mixin.mixins",
+	"refmap": "mixins.vetitus.refmap.json",
+	"mixins": [
+	]
+}

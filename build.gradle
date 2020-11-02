@@ -1,0 +1,112 @@
+buildscript {
+	ext.kotlin_version = '1.3.72'
+	repositories {
+		jcenter()
+		maven {
+			name = "forge"
+			url = "https://files.minecraftforge.net/maven"
+		}
+		maven {
+			name = "SpongePowered"
+			url = "http://repo.spongepowered.org/maven"
+		}
+	}
+	dependencies {
+		classpath "net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT"
+		classpath "org.spongepowered:mixingradle:0.6-SNAPSHOT"
+		classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+	}
+}
+
+apply plugin: "net.minecraftforge.gradle.forge"
+apply plugin: "org.spongepowered.mixin"
+apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: 'kotlin'
+
+version = modVersion
+group = modGroup
+archivesBaseName = modBaseName
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+
+minecraft {
+	version = project.forgeVersion
+	runDir = "run"
+
+	mappings = project.mcpVersion
+	makeObfSourceJar = false
+	coreMod = "me.robeart.vetitus.mixin.MixinLoader"
+}
+
+mixin {
+	defaultObfuscationEnv searge
+	add sourceSets.main, "mixins.vetitus.refmap.json"
+}
+
+repositories {
+	mavenCentral()
+	jcenter()
+	maven {
+		name = "spongepowered-repo"
+		url = "http://repo.spongepowered.org/maven/"
+	}
+	maven {
+		url = "https://jitpack.io/"
+	}
+}
+
+dependencies {
+	compile "com.mojang:brigadier:1.0.17"
+	compile 'com.jagrosh:DiscordIPC:0.4'
+	compile("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+		exclude module: "launchwrapper"
+		exclude module: "guava"
+		exclude module: "gson"
+		exclude module: "commons-io"
+	}
+	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+	compile "com.github.cookiedragon234:EventDispatcher:master-SNAPSHOT"
+}
+
+processResources {
+	inputs.property "version", project.version
+	inputs.property "mcversion", project.minecraft.version
+
+	from(sourceSets.main.resources.srcDirs) {
+		include "mcmod.info"
+
+		expand "version": project.version, "mcversion": project.minecraft.version
+	}
+
+	from(sourceSets.main.resources.srcDirs) {
+		exclude "mcmod.info"
+	}
+}
+
+jar {
+	manifest {
+		attributes(
+			"Main-Class": "me.robeart.vetitus.Vetitus",
+			"MixinConfigs": "mixins.luchadora.json",
+			"TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+			"TweakOrder": 0,
+			"FMLCorePluginContainsFMLMod": "true",
+			"FMLCorePlugin": "me.robeart.vetitus.mixin.MixinLoader",
+			"ForceLoadAsMod": "true",
+		)
+	}
+}
+
+shadowJar {
+	classifier = "shadow"
+	dependencies {
+		include(dependency("com.mojang:brigadier"))
+		include(dependency("org.spongepowered:mixin"))
+		include(dependency("org.jetbrains.kotlin:kotlin-stdlib"))
+		include(dependency("com.github.cookiedragon234:EventDispatcher"))
+	}
+	exclude "dummyThing"
+}
+
+build.dependsOn(shadowJar)

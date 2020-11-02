@@ -1,0 +1,19 @@
+[
+	{
+		"modid": "Vetitus",
+		"name": "Vetitus",
+		"description": "",
+		"version": "${version}",
+		"mcversion": "${mcversion}",
+		"url": "",
+		"updateUrl": "",
+		"authorList": [
+			"robeart",
+			"cookiedragon234"
+		],
+		"credits": "",
+		"logoFile": "",
+		"screenshots": [],
+		"dependencies": []
+	}
+]
